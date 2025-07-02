@@ -26,7 +26,7 @@ body{
     margin-bottom: 40px;
     position: relative;
 }
-.quote-box::after{
+.quote-box H2::after{
     content: "";
     width: 75px;
     height: 3px;
@@ -36,4 +36,60 @@ body{
     bottom: -10px;
     left: 50%;
     transform: translateX(-50%);
+}
+
+.quote-box blockquote{
+    font-size: 26PX;
+    min-height: 110PX;
+}
+
+.quote-box blockquote::before, .quote-box blockquote::after{
+    content: '"';
+}
+
+.quote-box span{
+    display: block;
+    margin-top: 10px;
+    float: right;
+    position: relative;
+}
+
+.quote-box span::before{
+    content: ' ';
+    width: 20px;
+    height: 2px;
+    background: rgb(23, 124, 229);
+    position: absolute;
+    top: 50%;
+    left: -30px;
+}
+
+.btns{
+    width: 100%;
+    margin-top: 50px;
+    display: flex;
+    justify-content: center;
+}
+
+.btns button{
+    background: rgb(23, 124, 229);
+    color: #fff;
+    border-radius: 25px;
+    border: 1px solid rgb(23, 124, 229);
+    width: 150px;
+    height: 50px;
+    align-items: center;
+    justify-content: center;
+    margin: 5px;
+    cursor: pointer;
+}
+
+.quote-box button img{
+    width: 20px;
+    margin-right: 10px; 
+}
+
+.quote-box button:nth-child(2){
+    background: transparent;
+    color: #333;
 }
