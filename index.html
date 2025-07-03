@@ -3,76 +3,182 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Quote of the day</title>
-  <link rel="stylesheet" href="style.css"/>
-  <style>
-    .btns button svg {
-      width: 18px;
-      height: 18px;
-      margin-right: 8px;
-      fill: currentColor;
-    }
-    .btns button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-  </style>
+  <title>Quote of the Day</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="quote-box">
-    <h2>Quote of the day</h2>
-    <blockquote id="quote">Loading...</blockquote>
-    <span id="author">Loading...</span>
+    <h2>Quote of the Day</h2>
+
+    <blockquote id="quote" class="loading">
+      <div class="spinner"></div>
+      Loading inspiring quote...
+    </blockquote>
+    <span id="author"></span>
 
     <div class="btns">
-      <button onclick="getquote(api_url)">New Quote</button>
-      <button onclick="share('x')">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M20.67 3H3.33A.33.33 0 0 0 3 3.33v17.34c0 .18.15.33.33.33h17.34c.18 0 .33-.15.33-.33V3.33A.33.33 0 0 0 20.67 3zm-3.2 15.1h-2.24l-3.07-4.16-3.17 4.16H6.7l4.25-5.51-4-5.39h2.25l2.9 3.93 3-3.93h2.18l-4.14 5.23 4.34 5.67z"/>
-        </svg>
-        Post
+      <button onclick="getQuote()" id="newQuoteBtn">
+        🔄 New Quote
       </button>
-      <button onclick="share('whatsapp')">WhatsApp</button>
-      <button onclick="share('linkedin')">LinkedIn</button>
-      <button onclick="copyToClipboard()">Copy</button>
+      <button class="btn-copy" onclick="copyToClipboard()" id="copyBtn">
+        📋 Copy
+      </button>
+      <button onclick="share('twitter')">
+        🐦 Twitter
+      </button>
+      <button onclick="share('whatsapp')">
+        💬 WhatsApp
+      </button>
+      <button onclick="share('linkedin')">
+        💼 LinkedIn
+      </button>
     </div>
+
     <div class="dark-toggle">
-      <label>
-        Dark Mode
-        <input type="checkbox" onchange="toggleDarkMode(this.checked)">
-      </label>
+      <span>🌙</span>
+      <div class="toggle-switch" onclick="toggleDarkMode()">
+        <div class="toggle-slider"></div>
+      </div>
+      <span>☀️</span>
     </div>
   </div>
 
   <script>
-  const quote = document.getElementById("quote");
-  const author = document.getElementById("author");
+    const quote = document.getElementById("quote");
+    const author = document.getElementById("author");
+    const newQuoteBtn = document.getElementById("newQuoteBtn");
+    const copyBtn = document.getElementById("copyBtn");
+    
+    // Direct API endpoint
+    const api_url = "https://api.quotable.io/random";
 
-  // Using CORS proxy to avoid browser blocking
-  const api_url = "https://api.allorigins.win/raw?url=https://api.quotable.io/random";
-
-  async function getquote(url) {
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-      quote.innerHTML = data.content;
-      author.innerHTML = data.author;
-    } catch (error) {
-      quote.innerHTML = "Failed to load quote.";
-      author.innerHTML = "Try again later.";
-      console.error("Error fetching quote:", error);
+    // Load dark mode preference
+    const isDarkMode = localStorage.getItem('darkMode') === 'true';
+    if (isDarkMode) {
+      document.body.classList.add('dark');
+      document.querySelector('.toggle-switch').classList.add('active');
     }
-  }
 
-  getquote(api_url);
+    async function getQuote() {
+      try {
+        // Show loading state
+        quote.innerHTML = '<div class="spinner"></div>Loading inspiring quote...';
+        quote.className = 'loading';
+        author.innerHTML = '';
+        newQuoteBtn.disabled = true;
 
-  function tweet() {
-    const text = `${quote.innerHTML} — ${author.innerHTML}`;
-    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
-    window.open(twitterUrl, "Tweet Window", "width=600,height=300");
-  }
-</script>
+        const response = await fetch(api_url);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch quote');
+        }
+        
+        const data = await response.json();
+        
+        // Add a small delay for better UX
+        setTimeout(() => {
+          quote.innerHTML = data.content;
+          quote.className = '';
+          author.innerHTML = `— ${data.author}`;
+          newQuoteBtn.disabled = false;
+        }, 500);
+        
+      } catch (error) {
+        quote.innerHTML = "Failed to load quote. Please try again.";
+        quote.className = 'error';
+        author.innerHTML = "";
+        newQuoteBtn.disabled = false;
+        console.error("Error fetching quote:", error);
+      }
+    }
 
+    function share(platform) {
+      const quoteText = quote.textContent.replace(/"/g, '');
+      const authorText = author.textContent;
+      const text = `"${quoteText}" ${authorText}`;
+      const encodedText = encodeURIComponent(text);
+      
+      let url = '';
+      switch (platform) {
+        case 'twitter':
+          url = `https://twitter.com/intent/tweet?text=${encodedText}`;
+          break;
+        case 'whatsapp':
+          url = `https://wa.me/?text=${encodedText}`;
+          break;
+        case 'linkedin':
+          url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}&title=${encodedText}`;
+          break;
+        default:
+          return;
+      }
+      
+      window.open(url, 'share-window', 'width=600,height=400');
+    }
+
+    async function copyToClipboard() {
+      const quoteText = quote.textContent.replace(/"/g, '');
+      const authorText = author.textContent;
+      const text = `"${quoteText}" ${authorText}`;
+      
+      try {
+        await navigator.clipboard.writeText(text);
+        
+        // Show success feedback
+        const originalText = copyBtn.innerHTML;
+        copyBtn.innerHTML = '✅ Copied!';
+        copyBtn.classList.add('copied');
+        
+        setTimeout(() => {
+          copyBtn.innerHTML = originalText;
+          copyBtn.classList.remove('copied');
+        }, 2000);
+        
+      } catch (err) {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        copyBtn.innerHTML = '✅ Copied!';
+        copyBtn.classList.add('copied');
+        
+        setTimeout(() => {
+          copyBtn.innerHTML = '📋 Copy';
+          copyBtn.classList.remove('copied');
+        }, 2000);
+      }
+    }
+
+    function toggleDarkMode() {
+      const body = document.body;
+      const toggle = document.querySelector('.toggle-switch');
+      
+      body.classList.toggle('dark');
+      toggle.classList.toggle('active');
+      
+      // Save preference
+      const isDark = body.classList.contains('dark');
+      localStorage.setItem('darkMode', isDark);
+    }
+
+    // Load initial quote
+    getQuote();
+
+    // Add keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        getQuote();
+      } else if (e.key === 'c' || e.key === 'C') {
+        copyToClipboard();
+      } else if (e.key === 'd' || e.key === 'D') {
+        toggleDarkMode();
+      }
+    });
+  </script>
 </body>
 </html>

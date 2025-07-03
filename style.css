@@ -18,7 +18,7 @@
     }
 
     body.dark {
-      background: #121212;
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
     }
 
     .quote-box {
@@ -34,6 +34,11 @@
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
       color: #fff;
       transition: all 0.3s ease-in-out;
+    }
+
+    body.dark .quote-box {
+      background: rgba(30, 41, 59, 0.3);
+      border: 1px solid rgba(148, 163, 184, 0.3);
     }
 
     .quote-box h2 {
@@ -111,25 +116,87 @@
       transition: 0.3s ease;
     }
 
-    .btns button svg {
-      width: 18px;
-      height: 18px;
-      margin-right: 8px;
-      fill: currentColor;
-    }
-
     .btns button:hover {
       background: #0d65c9;
       transform: translateY(-2px);
     }
 
+    .btns button:disabled {
+      background: #6b7280;
+      border-color: #6b7280;
+      cursor: not-allowed;
+      transform: none;
+    }
+
     .dark-toggle {
       margin-top: 20px;
       text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: #f1f1f1;
     }
 
-    .dark-toggle input {
-      margin-left: 10px;
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 26px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 13px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .toggle-switch.active {
+      background: #177ce5;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 22px;
+      height: 22px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle-switch.active .toggle-slider {
+      transform: translateX(24px);
+    }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: #f1f1f1;
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top: 2px solid #177ce5;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .error {
+      color: #ff6b6b;
+    }
+
+    .btn-copy.copied {
+      background: #10b981 !important;
+      border-color: #10b981 !important;
     }
 
     @media (max-width: 768px) {
@@ -153,5 +220,10 @@
         width: 130px;
         height: 42px;
         font-size: 14px;
+      }
+
+      .dark-toggle {
+        flex-direction: column;
+        gap: 15px;
       }
     }
